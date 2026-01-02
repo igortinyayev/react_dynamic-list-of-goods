@@ -6,34 +6,50 @@ import * as goodsAPI from './api/goods';
 
 export const App: React.FC = () => {
   const [goods, setGoods] = useState<Good[]>([]);
+  const [error, setError] = useState<string>('');
 
-  const loadAllGoods = () => {
-    goodsAPI.getAll().then(setGoods);
-  };
+  const handleRequest = (request: Promise<Good[]>) => {
+    setError('');
 
-  const loadFirstFive = () => {
-    goodsAPI.get5First().then(setGoods);
-  };
-
-  const loadRedGoods = () => {
-    goodsAPI.getRedGoods().then(setGoods);
+    request.then(setGoods).catch(() => {
+      setError('Something went wrong');
+      setGoods([]);
+    });
   };
 
   return (
     <div className="App">
       <h1>Dynamic list of Goods</h1>
 
-      <button type="button" data-cy="all-button" onClick={loadAllGoods}>
+      <button
+        type="button"
+        data-cy="all-button"
+        onClick={() => handleRequest(goodsAPI.getAll())}
+      >
         Load all goods
       </button>
 
-      <button type="button" data-cy="first-five-button" onClick={loadFirstFive}>
+      <button
+        type="button"
+        data-cy="first-five-button"
+        onClick={() => handleRequest(goodsAPI.get5First())}
+      >
         Load 5 first goods
       </button>
 
-      <button type="button" data-cy="red-button" onClick={loadRedGoods}>
+      <button
+        type="button"
+        data-cy="red-button"
+        onClick={() => handleRequest(goodsAPI.getRedGoods())}
+      >
         Load red goods
       </button>
+
+      {error && (
+        <p data-cy="error-message" className="error">
+          {error}
+        </p>
+      )}
 
       <GoodsList goods={goods} />
     </div>
